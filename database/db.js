@@ -1,18 +1,22 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 mongoose.set('strictQuery', true);
-
+const config = require('../config')
 async function connectDatabase() {
 
-    const result = await mongoose.connect(`mongodb://127.0.0.1:27017/user_details`);
+    const result = await mongoose.connect(process.env.hostuser);
     console.log(" connected")
     return result;
   }
   
   async function  userdatabase() {
-
-    const result = await mongoose.connect(`mongodb://127.0.0.1:27017/AllChat`);
-    console.log(" user connected")
-    return result;
+    try {
+      const result = await mongoose.connect(`mongodb+srv://${config.username}:${config.password}@cluster0.usgs7zg.mongodb.net/?retryWrites=true&w=majority`);
+     console.log(" user connected")
+      return result;
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-module.exports = {connectDatabase, userdatabase};
+module.exports = userdatabase
