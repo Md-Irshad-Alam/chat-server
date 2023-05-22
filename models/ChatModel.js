@@ -5,6 +5,11 @@ const chatSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  recipient: {
+    type: String,
+    required:true
+   
+  },
   message: {
     type: String,
     required: true
