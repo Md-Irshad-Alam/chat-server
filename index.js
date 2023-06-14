@@ -92,34 +92,37 @@ io.on("connection", (socket) => {
     }
   });
 
-socket.on("sendMessage", async ({ sender, message, recipient }) => {
+  socket.on('sendMessage', async({ sender, message, recipient }) => {
+    console.log(`sender: ${sender}, message: ${message}, recipient: ${recipient}`);
     try {
       const chat = new Chat({ sender, message, recipient });
       await chat.save();
-
-      const recipientSocket = userSocketMap.get(recipient);
-
-      if (recipientSocket) {
-        recipientSocket.emit("receiveMessage", { sender, message });
+  
+      const recipientUser = await User.findOne({ username: recipient });
+      if (recipientUser) {
+        const recipientSocketId = recipientUser.socketId;
+        io.to(recipientSocketId).emit('receiveMessage', { sender, message, recipient });
+        console.log('Message sent successfully.');
+      } else {
+        console.log('Recipient user not found.');
       }
     } catch (error) {
       console.error(error);
     }
   });
 
-
   socket.on("disconnect", async () => {
     try {
-      const userdetails = await User.findOneAndDelete({ socketId: socket.id });
+      // const userdetails = await User.findOneAndDelete({ socketId: socket.id });
 
-      userSocketMap.delete(socket.id);
+      // userSocketMap.delete(socket.id);
 
-      if (userdetails) {
-        console.log(`${userdetails.username} has left`);
-        socket.broadcast.emit("leave", {
-          message: `${userdetails.username} has left`,
-        });
-      }
+      // if (userdetails) {
+      //   console.log(`${userdetails.username} has left`);
+      //   socket.broadcast.emit("leave", {
+      //     message: `${userdetails.username} has left`,
+      //   });
+      // }
 
       delete users[socket.id];
       console.log("User left");
